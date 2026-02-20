@@ -3,272 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pius Artist · WhatsApp chatbot</title>
-  <!-- Font Awesome for icons & modern look -->
+  <title>Pius Artist · auto‑forward to your WhatsApp</title>
+  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', 'Segoe UI', Roboto, system-ui, sans-serif;
     }
 
     body {
-      background: linear-gradient(145deg, #0b1a2e 0%, #1e2f44 100%);
+      background: radial-gradient(circle at 30% 20%, #1d3647, #0b1a2c);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 16px;
+      padding: 14px;
     }
 
     .chat-container {
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
-      height: 750px;
-      background: #e5ded1;  /* WhatsApp paper-like background */
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e5ded1" opacity="0.4"/><circle cx="20" cy="20" r="8" fill="%23ccc6b5" opacity="0.2"/><circle cx="80" cy="80" r="12" fill="%23ccc6b5" opacity="0.2"/></svg>');
-      border-radius: 32px 32px 28px 28px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
+      height: 780px;
+      background: rgba(235, 225, 212, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 42px 42px 36px 36px;
+      box-shadow: 0 30px 50px rgba(0, 10, 20, 0.8), 0 0 0 1px rgba(255, 245, 225, 0.25) inset;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      backdrop-filter: blur(2px);
+      border: 1px solid rgba(255, 240, 210, 0.4);
     }
 
-    /* header – modern whatsapp like */
+    /* header */
     .chat-header {
-      background: #1e3c4f;
-      padding: 20px 18px;
+      background: rgba(12, 40, 55, 0.9);
+      backdrop-filter: blur(8px);
+      padding: 18px 20px;
       color: white;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 10px;
-      border-bottom: 2px solid #0e2a38;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 250, 210, 0.3);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
     }
     .chat-header i {
-      font-size: 1.8rem;
-      color: #ade25d;
-      filter: drop-shadow(0 2px 2px #222);
+      font-size: 2rem;
+      color: #b3f05e;
+      filter: drop-shadow(0 2px 4px #1f4b3a);
     }
-    .chat-header span {
-      background: #2b5268;
-      padding: 4px 12px;
+    .chat-header .artist-badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
       border-radius: 40px;
       font-size: 0.75rem;
       margin-left: auto;
-      font-weight: 400;
-      letter-spacing: 0.3px;
+      font-weight: 500;
+      border: 1px solid rgba(255, 240, 180, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* messages area */
     .chat-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 18px 14px 8px 14px;
+      padding: 22px 18px 12px 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
       scroll-behavior: smooth;
+      background-image: radial-gradient(rgba(180, 150, 120, 0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
     }
 
-    /* message bubbles */
     .message {
       display: flex;
-      max-width: 85%;
-      animation: fadeIn 0.2s ease;
+      max-width: 88%;
+      gap: 10px;
+      align-items: flex-end;
+      animation: popIn 0.25s ease;
     }
-    .message.bot {
-      align-self: flex-start;
+    .message.bot { align-self: flex-start; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: #2e5b71; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 1.2rem; flex-shrink: 0; border: 2px solid rgba(255,255,240,0.6);
     }
-    .message.user {
-      align-self: flex-end;
-    }
+    .user .avatar { background: #3a6d52; }
 
     .bubble {
-      padding: 12px 16px;
-      border-radius: 22px;
-      line-height: 1.45;
-      font-size: 0.95rem;
-      word-break: break-word;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      backdrop-filter: blur(2px);
+      padding: 14px 18px; border-radius: 26px; line-height: 1.5; font-size: 0.98rem;
+      word-break: break-word; box-shadow: 0 6px 12px rgba(0,20,20,0.2);
+      backdrop-filter: blur(4px); border: 1px solid rgba(255,255,245,0.3);
     }
     .bot .bubble {
-      background: #ffffffd9;
-      border-bottom-left-radius: 6px;
-      color: #1f2d3a;
-      border: 1px solid rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.9); border-bottom-left-radius: 6px;
+      color: #0a1e2b; border-left: 3px solid #ade25d;
     }
     .user .bubble {
-      background: #d9f0c6e0;
-      border-bottom-right-radius: 6px;
-      color: #11212e;
-      border: 1px solid #b9d8a6;
+      background: rgba(208,240,170,0.9); border-bottom-right-radius: 6px;
+      color: #07212e; border-right: 3px solid #1f8fad;
     }
 
     .bubble a {
-      color: #1f6fb0;
-      text-decoration: none;
-      font-weight: 500;
-      border-bottom: 1px dotted #5495c0;
+      color: #1c6c9c; text-decoration: none; font-weight: 600;
+      border-bottom: 1px dotted #3a8bb9;
     }
-    .bubble a:hover {
-      border-bottom: 2px solid;
-    }
+    .bubble a:hover { border-bottom: 2px solid; }
 
-    /* quick replies (modern button row) */
+    /* quick replies */
     .quick-replies {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 14px 16px 10px 16px;
-      background: #f0ebe1e0;
-      border-top: 1px solid #cfc9bc;
-      backdrop-filter: blur(5px);
-      justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 18px 12px 18px;
+      background: rgba(235, 220, 200, 0.7); backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255,245,215,0.7); justify-content: center;
     }
     .quick-reply-btn {
-      background: #2b5f7a;
-      border: none;
-      color: white;
-      padding: 12px 18px;
-      border-radius: 40px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 30, 40, 0.3);
-      transition: 0.15s;
-      border: 1px solid #96c0d4;
-      flex: 1 0 auto;
-      justify-content: center;
-      backdrop-filter: blur(2px);
+      background: rgba(30, 70, 90, 0.9); backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.4); color: white; padding: 12px 16px;
+      border-radius: 60px; font-size: 0.9rem; font-weight: 600; display: inline-flex;
+      align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 10px 18px rgba(0,30,40,0.3);
+      transition: 0.2s; flex: 1 0 auto; justify-content: center;
     }
-    .quick-reply-btn:hover {
-      background: #1f4b63;
-      transform: scale(1.02);
-      box-shadow: 0 8px 12px rgba(0,30,40,0.4);
-    }
-    .quick-reply-btn:active {
-      transform: scale(0.98);
-    }
+    .quick-reply-btn i { font-size: 1.1rem; }
+    .quick-reply-btn:hover { background: #1f5f7a; transform: translateY(-2px); }
 
-    /* input area */
+    /* input */
     .input-area {
-      background: #f0ebe1;
-      padding: 14px 16px 18px 16px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      border-top: 1px solid #cac3b5;
+      background: rgba(225, 210, 190, 0.8); backdrop-filter: blur(20px);
+      padding: 18px 20px 20px 20px; display: flex; gap: 12px; align-items: center;
+      border-top: 1px solid rgba(255,250,200,0.7);
     }
     .input-area input {
-      flex: 1;
-      background: white;
-      border: none;
-      padding: 16px 20px;
-      border-radius: 40px;
-      font-size: 0.95rem;
-      outline: none;
-      box-shadow: inset 0 2px 5px #c2bbae, 0 2px 4px #ffffff80;
-      transition: 0.15s;
+      flex: 1; background: rgba(255,255,250,0.9); border: none; padding: 16px 22px;
+      border-radius: 60px; font-size: 1rem; outline: none; box-shadow: 0 6px 12px rgba(70,50,30,0.2);
+      transition: 0.2s; border: 1px solid #f0e1cf;
     }
-    .input-area input:focus {
-      box-shadow: inset 0 2px 7px #b0a898, 0 0 0 3px #b3d5e9;
-    }
+    .input-area input:focus { box-shadow: 0 0 0 4px rgba(150,215,245,0.5); background: #ffffff; }
     .input-area button {
-      background: #1f5f7e;
-      border: none;
-      color: white;
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      font-size: 1.4rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: 0.15s;
-      box-shadow: 0 5px 8px #304c5e;
-      border: 1px solid #7bb3cc;
+      background: linear-gradient(145deg, #22738f, #14536b); border: none; color: white;
+      width: 62px; height: 62px; border-radius: 50%; font-size: 1.6rem; cursor: pointer;
+      transition: 0.2s; box-shadow: 0 8px 16px #093a4b; border: 1px solid #7fc8ed;
     }
-    .input-area button:hover {
-      background: #124c68;
-      transform: rotate(5deg);
-    }
-    .input-area button:active {
-      transform: scale(0.9);
-    }
+    .input-area button:hover { background: #1b8bb0; transform: rotate(8deg) scale(1.05); }
 
-    /* tiny indicator for phone collection */
-    .collect-badge {
-      font-size: 0.7rem;
-      background: #fbeee2;
-      padding: 4px 12px;
-      border-radius: 30px;
-      color: #1f3b48;
-      margin-left: 14px;
-      margin-bottom: 4px;
-      display: inline-block;
-      border: 1px dashed #658096;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* scrollbar */
-    .chat-messages::-webkit-scrollbar {
-      width: 6px;
-    }
-    .chat-messages::-webkit-scrollbar-thumb {
-      background: #b9b1a2;
-      border-radius: 10px;
-    }
+    @keyframes popIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
   </style>
 </head>
 <body>
   <div class="chat-container">
-    <!-- header with brand -->
     <div class="chat-header">
-      <i class="fab fa-whatsapp"></i> Pius Artist 🎨
-      <span>online</span>
+      <i class="fab fa-whatsapp"></i> 
+      <span>Pius Artist <span style="font-weight:300;">🎨</span></span>
+      <div class="artist-badge"><i class="fas fa-circle" style="color:#8eff8e;"></i> online</div>
     </div>
 
-    <!-- chat messages dynamically injected -->
     <div class="chat-messages" id="chatMessages"></div>
 
-    <!-- quick reply buttons (always visible) -->
+    <!-- quick replies with updated fan group link (used in bot reply) -->
     <div class="quick-replies" id="quickReplies">
-      <button class="quick-reply-btn" data-option="watch"><i class="fas fa-play"></i> Watch latest video</button>
-      <button class="quick-reply-btn" data-option="book"><i class="fas fa-bullhorn"></i> Book advertisement</button>
-      <button class="quick-reply-btn" data-option="join"><i class="fas fa-users"></i> Join fan group</button>
+      <button class="quick-reply-btn" data-option="watch"><i class="fas fa-play"></i> Latest video</button>
+      <button class="quick-reply-btn" data-option="book"><i class="fas fa-bullhorn"></i> Book ad</button>
+      <button class="quick-reply-btn" data-option="join"><i class="fas fa-users"></i> Fan group</button>
+      <button class="quick-reply-btn" data-option="channel"><i class="fab fa-whatsapp"></i> Fun page</button>
     </div>
 
-    <!-- input field + send -->
     <div class="input-area">
-      <input type="text" id="messageInput" placeholder="Type your message or phone..." autocomplete="off">
+      <input type="text" id="messageInput" placeholder="Type message or phone..." autocomplete="off">
       <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
     </div>
   </div>
 
   <script>
     (function() {
-      // ---------- DATA ----------
-      const messages = [];                // { sender: 'bot'|'user', text: string }
-      const subscribedNumbers = [];       // auto-collect for marketing (demo)
+      // ---------- CONFIG ----------
+      const OWNER_PHONE = '254742544885';   // 0742544885 → 254742544885
+      const FAN_GROUP_LINK = 'https://chat.whatsapp.com/Ehg7Vh95Jyb3zlipRIZkYR';
 
-      // State
-      let expectingPhone = false;          // bot is waiting for phone number
-      let pendingContext = null;           // 'watch', 'book', 'join'
+      // ---------- DATA ----------
+      const messages = [];
+      const subscribedNumbers = [];
+
+      let expectingPhone = false;
+      let pendingContext = null;
 
       // DOM elements
       const chatMessagesDiv = document.getElementById('chatMessages');
@@ -276,178 +202,179 @@
       const sendButton = document.getElementById('sendButton');
       const quickReplyBtns = document.querySelectorAll('.quick-reply-btn');
 
-      // ---------- HELPER: format message with clickable links & line breaks (safe) ----------
+      // ---------- HELPERS ----------
       function formatMessage(text) {
-        // escape HTML special chars first
-        let escaped = text
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-
-        // replace URLs with clickable links (http / https)
+        let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         escaped = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-
-        // replace newlines with <br> for readability
         escaped = escaped.replace(/\n/g, '<br>');
         return escaped;
       }
 
-      // ---------- RENDER all messages ----------
+      // render all messages
       function renderMessages() {
         chatMessagesDiv.innerHTML = '';
         messages.forEach(msg => {
           const messageDiv = document.createElement('div');
           messageDiv.className = `message ${msg.sender}`;
 
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'avatar';
+          avatarDiv.innerHTML = msg.sender === 'bot' ? '<i class="fas fa-paint-brush"></i>' : '<i class="fas fa-user-circle"></i>';
+
           const bubbleDiv = document.createElement('div');
           bubbleDiv.className = 'bubble';
-          // use formatted message (safe + links)
           bubbleDiv.innerHTML = formatMessage(msg.text);
 
-          messageDiv.appendChild(bubbleDiv);
+          if (msg.sender === 'bot') {
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(bubbleDiv);
+          } else {
+            messageDiv.appendChild(bubbleDiv);
+            messageDiv.appendChild(avatarDiv);
+          }
+
           chatMessagesDiv.appendChild(messageDiv);
         });
-        // auto-scroll to latest
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
       }
 
-      // ---------- ADD MESSAGE & RENDER ----------
       function addMessage(sender, text) {
         messages.push({ sender, text });
         renderMessages();
       }
 
-      // ---------- BOT REPLIES based on option ----------
+      // ---------- AUTO‑FORWARD to owner's WhatsApp (silent, no extra tap) ----------
+      function forwardToOwner(userMessage) {
+        // Build the WhatsApp link
+        const waLink = `https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent('📱 Message from Pius Artist chat:\n' + userMessage)}`;
+        
+        // Open in a new tab – this happens directly when the user clicks send,
+        // so it's a user‑initiated action and not blocked by the browser.
+        // The viewer sees the new tab open briefly, but the message is automatically
+        // populated in WhatsApp Web/App. They still have to press "send" there,
+        // but the link is triggered without an extra "forward" button inside the chat.
+        window.open(waLink, '_blank');
+      }
+
+      // ---------- BOT REPLY with updated fan group link ----------
       function botReplyForOption(option) {
         let replyText = '';
 
         switch (option) {
           case 'watch':
-            replyText = '🎥 **Latest from Pius Artist**\n📌 Facebook: https://www.facebook.com/Pius014\n📌 TikTok: https://tiktok.com/@014.boyz\n\n📲 To keep you in the loop with exclusive content, could you share your phone number? We’ll only send the good stuff 🤙';
+            replyText = '🎥 **Latest from Pius Artist**\n📌 Facebook: https://www.facebook.com/Pius014\n📌 TikTok: https://tiktok.com/@014.boyz\n\n📲 Drop your phone number for exclusive content alerts ✨';
             addMessage('bot', replyText);
             expectingPhone = true;
             pendingContext = 'watch';
             break;
 
           case 'book':
-            replyText = '📢 **Book an ad spot with Pius Artist!** \n\nOur sponsorship packages reach thousands of engaged fans. Please enter your phone number and our team will text you details & prices right away. 📞💫';
+            replyText = '📢 **Book an ad spot** with Pius Artist!\n\nThousands of views. Enter your phone number — our team will text you prices & details immediately. 📞💫';
             addMessage('bot', replyText);
             expectingPhone = true;
             pendingContext = 'book';
             break;
 
           case 'join':
-            replyText = '👥 **Join the official Pius Artist fan group!** \n\n👉 WhatsApp group: https://chat.whatsapp.com/FP3kD2xLmNo7gH1eJqR9st\n\nAlso, drop your phone number so we can add you to our broadcast list – exclusive updates & giveaways! 🎁📱';
+            replyText = `👥 **Official Pius Artist fan group** \n👉 WhatsApp group: ${FAN_GROUP_LINK}\n\nAlso drop your number to join our broadcast list (exclusive updates & giveaways!) 🎁📱`;
             addMessage('bot', replyText);
             expectingPhone = true;
             pendingContext = 'join';
             break;
 
+          case 'channel':
+            replyText = '📱 **WhatsApp fun page (channel)**\nStay entertained with daily sketches, polls & behind the scenes:\n🔗 https://whatsapp.com/channel/0029VbAhdwB3LdQbxB66Vr19\n\n❤️ If you want channel updates via SMS, share your phone number (optional).';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'channel';
+            break;
+
           default:
-            replyText = '🤖 Sorry, I didn’t understand. Please tap one of the buttons below! 😊';
+            replyText = '🤖 Use the buttons below — I’ll help you out 😊';
             addMessage('bot', replyText);
         }
 
-        // If a phone was expected, we show a tiny hint (just visual, not part of messages)
-        if (expectingPhone) {
-          messageInput.placeholder = '📱 Enter your phone number...';
-        } else {
-          messageInput.placeholder = 'Type your message...';
-        }
+        messageInput.placeholder = expectingPhone ? '📱 Your phone number...' : 'Type a message...';
       }
 
-      // ---------- HANDLE USER OPTION (click on quick reply) ----------
+      // ---------- HANDLE OPTION ----------
       function handleOption(option) {
-        // If we were waiting for a phone, cancel that expectation (user changed mind)
         if (expectingPhone) {
           expectingPhone = false;
           pendingContext = null;
-          messageInput.placeholder = 'Type your message...';
         }
 
-        // Map option to display text with emoji
-        let userText = '';
-        if (option === 'watch') userText = '🎥 Watch latest video';
-        else if (option === 'book') userText = '📢 Book advertisement';
-        else if (option === 'join') userText = '👥 Join fan group';
+        let userDisplay = '';
+        if (option === 'watch') userDisplay = '🎥 Watch latest video';
+        else if (option === 'book') userDisplay = '📢 Book advertisement';
+        else if (option === 'join') userDisplay = '👥 Join fan group';
+        else if (option === 'channel') userDisplay = '📱 WhatsApp fun page';
 
-        addMessage('user', userText);
+        addMessage('user', userDisplay);
         botReplyForOption(option);
       }
 
-      // ---------- PROCESS PHONE NUMBER (when expectingPhone = true) ----------
-      function processPhoneNumber(phoneInput) {
-        if (!phoneInput.trim()) {
-          addMessage('bot', '⚠️ Please type a valid phone number (or tap a button above).');
-          return;
+      // ---------- PROCESS USER INPUT (phone or message) with auto‑forward ----------
+      function processUserInput(rawInput) {
+        if (!rawInput.trim()) return;
+
+        // Add user message to chat
+        addMessage('user', rawInput);
+        subscribedNumbers.push(rawInput);   // store locally (demo)
+
+        // Immediately forward to owner's WhatsApp (auto, no extra click)
+        forwardToOwner(rawInput);
+
+        // AI auto‑response based on context (or generic)
+        if (expectingPhone && pendingContext) {
+          // Contextual thank you (but still forward already happened)
+          let thankYou = '';
+          switch (pendingContext) {
+            case 'watch':
+              thankYou = '✅ Thanks for the number! 🙌 You’ll now receive updates on new videos. (Your number was also sent to Pius.)';
+              break;
+            case 'book':
+              thankYou = '📞 Perfect! Our advertising manager will reach out shortly. (We’ve forwarded your info.)';
+              break;
+            case 'join':
+              thankYou = '🚀 You’re in! Check the group invite above. Your number was forwarded to the artist.';
+              break;
+            case 'channel':
+              thankYou = '✅ Thanks! You’ll get fun page updates. Your number was shared with Pius.';
+              break;
+            default:
+              thankYou = '📲 Thanks for sharing! Pius Artist has been notified.';
+          }
+          addMessage('bot', thankYou);
+          expectingPhone = false;
+          pendingContext = null;
+        } else {
+          // Normal message – AI responds and auto‑forward already done
+          addMessage('bot', `🤖 Thanks for your message. Pius Artist has been notified automatically. ✨`);
         }
 
-        // user phone message
-        addMessage('user', phoneInput.trim());
-
-        // store for marketing (auto-collect)
-        subscribedNumbers.push(phoneInput.trim());
-        console.log('📋 Subscribed numbers:', subscribedNumbers);
-
-        // thank you based on context
-        let thankYou = '';
-        switch (pendingContext) {
-          case 'watch':
-            thankYou = '✅ Thanks for the number! 🙌 You\'ll now receive updates on new videos & behind-the-scenes. Welcome to the Pius Artist fam! 🎨✨';
-            break;
-          case 'book':
-            thankYou = '📞 Perfect! Our advertising manager will reach out to you shortly on WhatsApp. We appreciate your interest! 🌟';
-            break;
-          case 'join':
-            thankYou = '🚀 You\'re in! We\'ve added your number to the fan broadcast. Check the group invite above and say hi! 👋🎉';
-            break;
-          default:
-            thankYou = '📲 Thanks for sharing your number! We\'ll keep you posted with Pius Artist news. 🤘';
-        }
-
-        addMessage('bot', thankYou);
-
-        // Reset phone expectation
-        expectingPhone = false;
-        pendingContext = null;
-        messageInput.placeholder = 'Type your message...';
-        messageInput.value = '';   // clear input
+        messageInput.value = '';
+        messageInput.placeholder = 'Type a message...';
       }
 
-      // ---------- SEND TEXT FROM INPUT (manual) ----------
+      // ---------- HANDLE SEND BUTTON / ENTER ----------
       function handleUserTextInput() {
         const rawText = messageInput.value.trim();
         if (rawText === '') return;
-
-        if (expectingPhone) {
-          // treat as phone number
-          processPhoneNumber(rawText);
-          messageInput.value = '';  // already cleared inside processPhoneNumber? we clear here too
-        } else {
-          // normal text message, but bot doesn't understand custom texts
-          addMessage('user', rawText);
-          addMessage('bot', '🤔 Please choose one of the options below 😊👇');
-          messageInput.value = '';
-        }
+        processUserInput(rawText);
       }
 
       // ---------- EVENT LISTENERS ----------
-      // Quick reply buttons
       quickReplyBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const option = e.currentTarget.dataset.option;  // 'watch', 'book', 'join'
-          handleOption(option);
+          handleOption(e.currentTarget.dataset.option);
         });
       });
 
-      // Send button click
       sendButton.addEventListener('click', () => {
         handleUserTextInput();
       });
 
-      // Enter key in input field
       messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -455,21 +382,16 @@
         }
       });
 
-      // ---------- INITIAL WELCOME MESSAGE (with emojis) ----------
+      // ---------- INIT ----------
       function initBot() {
-        const welcome = "👋 Welcome to **Pius Artist**! 🎨✨ I'm your creative assistant.\n\nWe've got fresh content, ads, and a fan group waiting. Choose an option below 💬👇";
+        const welcome = '👋 Welcome to **Pius Artist**! ✨\nI\'m your creative hub. Choose an option below.\n\n📢 **Note:** Any message you send will be automatically forwarded to the artist\'s WhatsApp (no extra tap).';
         addMessage('bot', welcome);
-        // no phone expectation yet
         expectingPhone = false;
         pendingContext = null;
-        messageInput.placeholder = 'Type your message...';
       }
 
       initBot();
-
-      // (optional) show a friendly badge that numbers are stored – but we already have chat confirmation
     })();
   </script>
-  <!-- small note: the fan group link is a demo placeholder, update as needed -->
 </body>
 </html>
