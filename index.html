@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pius Artist · WhatsApp chatbot</title>
+  <!-- Font Awesome for icons & modern look -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b1a2e 0%, #1e2f44 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .chat-container {
+      max-width: 500px;
+      width: 100%;
+      height: 750px;
+      background: #e5ded1;  /* WhatsApp paper-like background */
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e5ded1" opacity="0.4"/><circle cx="20" cy="20" r="8" fill="%23ccc6b5" opacity="0.2"/><circle cx="80" cy="80" r="12" fill="%23ccc6b5" opacity="0.2"/></svg>');
+      border-radius: 32px 32px 28px 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+    }
+
+    /* header – modern whatsapp like */
+    .chat-header {
+      background: #1e3c4f;
+      padding: 20px 18px;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid #0e2a38;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .chat-header i {
+      font-size: 1.8rem;
+      color: #ade25d;
+      filter: drop-shadow(0 2px 2px #222);
+    }
+    .chat-header span {
+      background: #2b5268;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      margin-left: auto;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    /* messages area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 14px 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    /* message bubbles */
+    .message {
+      display: flex;
+      max-width: 85%;
+      animation: fadeIn 0.2s ease;
+    }
+    .message.bot {
+      align-self: flex-start;
+    }
+    .message.user {
+      align-self: flex-end;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 22px;
+      line-height: 1.45;
+      font-size: 0.95rem;
+      word-break: break-word;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      backdrop-filter: blur(2px);
+    }
+    .bot .bubble {
+      background: #ffffffd9;
+      border-bottom-left-radius: 6px;
+      color: #1f2d3a;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+    .user .bubble {
+      background: #d9f0c6e0;
+      border-bottom-right-radius: 6px;
+      color: #11212e;
+      border: 1px solid #b9d8a6;
+    }
+
+    .bubble a {
+      color: #1f6fb0;
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px dotted #5495c0;
+    }
+    .bubble a:hover {
+      border-bottom: 2px solid;
+    }
+
+    /* quick replies (modern button row) */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 14px 16px 10px 16px;
+      background: #f0ebe1e0;
+      border-top: 1px solid #cfc9bc;
+      backdrop-filter: blur(5px);
+      justify-content: center;
+    }
+    .quick-reply-btn {
+      background: #2b5f7a;
+      border: none;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 30, 40, 0.3);
+      transition: 0.15s;
+      border: 1px solid #96c0d4;
+      flex: 1 0 auto;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .quick-reply-btn:hover {
+      background: #1f4b63;
+      transform: scale(1.02);
+      box-shadow: 0 8px 12px rgba(0,30,40,0.4);
+    }
+    .quick-reply-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* input area */
+    .input-area {
+      background: #f0ebe1;
+      padding: 14px 16px 18px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-top: 1px solid #cac3b5;
+    }
+    .input-area input {
+      flex: 1;
+      background: white;
+      border: none;
+      padding: 16px 20px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      outline: none;
+      box-shadow: inset 0 2px 5px #c2bbae, 0 2px 4px #ffffff80;
+      transition: 0.15s;
+    }
+    .input-area input:focus {
+      box-shadow: inset 0 2px 7px #b0a898, 0 0 0 3px #b3d5e9;
+    }
+    .input-area button {
+      background: #1f5f7e;
+      border: none;
+      color: white;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 5px 8px #304c5e;
+      border: 1px solid #7bb3cc;
+    }
+    .input-area button:hover {
+      background: #124c68;
+      transform: rotate(5deg);
+    }
+    .input-area button:active {
+      transform: scale(0.9);
+    }
+
+    /* tiny indicator for phone collection */
+    .collect-badge {
+      font-size: 0.7rem;
+      background: #fbeee2;
+      padding: 4px 12px;
+      border-radius: 30px;
+      color: #1f3b48;
+      margin-left: 14px;
+      margin-bottom: 4px;
+      display: inline-block;
+      border: 1px dashed #658096;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* scrollbar */
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #b9b1a2;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <!-- header with brand -->
+    <div class="chat-header">
+      <i class="fab fa-whatsapp"></i> Pius Artist 🎨
+      <span>online</span>
+    </div>
+
+    <!-- chat messages dynamically injected -->
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <!-- quick reply buttons (always visible) -->
+    <div class="quick-replies" id="quickReplies">
+      <button class="quick-reply-btn" data-option="watch"><i class="fas fa-play"></i> Watch latest video</button>
+      <button class="quick-reply-btn" data-option="book"><i class="fas fa-bullhorn"></i> Book advertisement</button>
+      <button class="quick-reply-btn" data-option="join"><i class="fas fa-users"></i> Join fan group</button>
+    </div>
+
+    <!-- input field + send -->
+    <div class="input-area">
+      <input type="text" id="messageInput" placeholder="Type your message or phone..." autocomplete="off">
+      <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- DATA ----------
+      const messages = [];                // { sender: 'bot'|'user', text: string }
+      const subscribedNumbers = [];       // auto-collect for marketing (demo)
+
+      // State
+      let expectingPhone = false;          // bot is waiting for phone number
+      let pendingContext = null;           // 'watch', 'book', 'join'
+
+      // DOM elements
+      const chatMessagesDiv = document.getElementById('chatMessages');
+      const messageInput = document.getElementById('messageInput');
+      const sendButton = document.getElementById('sendButton');
+      const quickReplyBtns = document.querySelectorAll('.quick-reply-btn');
+
+      // ---------- HELPER: format message with clickable links & line breaks (safe) ----------
+      function formatMessage(text) {
+        // escape HTML special chars first
+        let escaped = text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+
+        // replace URLs with clickable links (http / https)
+        escaped = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // replace newlines with <br> for readability
+        escaped = escaped.replace(/\n/g, '<br>');
+        return escaped;
+      }
+
+      // ---------- RENDER all messages ----------
+      function renderMessages() {
+        chatMessagesDiv.innerHTML = '';
+        messages.forEach(msg => {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${msg.sender}`;
+
+          const bubbleDiv = document.createElement('div');
+          bubbleDiv.className = 'bubble';
+          // use formatted message (safe + links)
+          bubbleDiv.innerHTML = formatMessage(msg.text);
+
+          messageDiv.appendChild(bubbleDiv);
+          chatMessagesDiv.appendChild(messageDiv);
+        });
+        // auto-scroll to latest
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+      }
+
+      // ---------- ADD MESSAGE & RENDER ----------
+      function addMessage(sender, text) {
+        messages.push({ sender, text });
+        renderMessages();
+      }
+
+      // ---------- BOT REPLIES based on option ----------
+      function botReplyForOption(option) {
+        let replyText = '';
+
+        switch (option) {
+          case 'watch':
+            replyText = '🎥 **Latest from Pius Artist**\n📌 Facebook: https://www.facebook.com/Pius014\n📌 TikTok: https://tiktok.com/@014.boyz\n\n📲 To keep you in the loop with exclusive content, could you share your phone number? We’ll only send the good stuff 🤙';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'watch';
+            break;
+
+          case 'book':
+            replyText = '📢 **Book an ad spot with Pius Artist!** \n\nOur sponsorship packages reach thousands of engaged fans. Please enter your phone number and our team will text you details & prices right away. 📞💫';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'book';
+            break;
+
+          case 'join':
+            replyText = '👥 **Join the official Pius Artist fan group!** \n\n👉 WhatsApp group: https://chat.whatsapp.com/FP3kD2xLmNo7gH1eJqR9st\n\nAlso, drop your phone number so we can add you to our broadcast list – exclusive updates & giveaways! 🎁📱';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'join';
+            break;
+
+          default:
+            replyText = '🤖 Sorry, I didn’t understand. Please tap one of the buttons below! 😊';
+            addMessage('bot', replyText);
+        }
+
+        // If a phone was expected, we show a tiny hint (just visual, not part of messages)
+        if (expectingPhone) {
+          messageInput.placeholder = '📱 Enter your phone number...';
+        } else {
+          messageInput.placeholder = 'Type your message...';
+        }
+      }
+
+      // ---------- HANDLE USER OPTION (click on quick reply) ----------
+      function handleOption(option) {
+        // If we were waiting for a phone, cancel that expectation (user changed mind)
+        if (expectingPhone) {
+          expectingPhone = false;
+          pendingContext = null;
+          messageInput.placeholder = 'Type your message...';
+        }
+
+        // Map option to display text with emoji
+        let userText = '';
+        if (option === 'watch') userText = '🎥 Watch latest video';
+        else if (option === 'book') userText = '📢 Book advertisement';
+        else if (option === 'join') userText = '👥 Join fan group';
+
+        addMessage('user', userText);
+        botReplyForOption(option);
+      }
+
+      // ---------- PROCESS PHONE NUMBER (when expectingPhone = true) ----------
+      function processPhoneNumber(phoneInput) {
+        if (!phoneInput.trim()) {
+          addMessage('bot', '⚠️ Please type a valid phone number (or tap a button above).');
+          return;
+        }
+
+        // user phone message
+        addMessage('user', phoneInput.trim());
+
+        // store for marketing (auto-collect)
+        subscribedNumbers.push(phoneInput.trim());
+        console.log('📋 Subscribed numbers:', subscribedNumbers);
+
+        // thank you based on context
+        let thankYou = '';
+        switch (pendingContext) {
+          case 'watch':
+            thankYou = '✅ Thanks for the number! 🙌 You\'ll now receive updates on new videos & behind-the-scenes. Welcome to the Pius Artist fam! 🎨✨';
+            break;
+          case 'book':
+            thankYou = '📞 Perfect! Our advertising manager will reach out to you shortly on WhatsApp. We appreciate your interest! 🌟';
+            break;
+          case 'join':
+            thankYou = '🚀 You\'re in! We\'ve added your number to the fan broadcast. Check the group invite above and say hi! 👋🎉';
+            break;
+          default:
+            thankYou = '📲 Thanks for sharing your number! We\'ll keep you posted with Pius Artist news. 🤘';
+        }
+
+        addMessage('bot', thankYou);
+
+        // Reset phone expectation
+        expectingPhone = false;
+        pendingContext = null;
+        messageInput.placeholder = 'Type your message...';
+        messageInput.value = '';   // clear input
+      }
+
+      // ---------- SEND TEXT FROM INPUT (manual) ----------
+      function handleUserTextInput() {
+        const rawText = messageInput.value.trim();
+        if (rawText === '') return;
+
+        if (expectingPhone) {
+          // treat as phone number
+          processPhoneNumber(rawText);
+          messageInput.value = '';  // already cleared inside processPhoneNumber? we clear here too
+        } else {
+          // normal text message, but bot doesn't understand custom texts
+          addMessage('user', rawText);
+          addMessage('bot', '🤔 Please choose one of the options below 😊👇');
+          messageInput.value = '';
+        }
+      }
+
+      // ---------- EVENT LISTENERS ----------
+      // Quick reply buttons
+      quickReplyBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const option = e.currentTarget.dataset.option;  // 'watch', 'book', 'join'
+          handleOption(option);
+        });
+      });
+
+      // Send button click
+      sendButton.addEventListener('click', () => {
+        handleUserTextInput();
+      });
+
+      // Enter key in input field
+      messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleUserTextInput();
+        }
+      });
+
+      // ---------- INITIAL WELCOME MESSAGE (with emojis) ----------
+      function initBot() {
+        const welcome = "👋 Welcome to **Pius Artist**! 🎨✨ I'm your creative assistant.\n\nWe've got fresh content, ads, and a fan group waiting. Choose an option below 💬👇";
+        addMessage('bot', welcome);
+        // no phone expectation yet
+        expectingPhone = false;
+        pendingContext = null;
+        messageInput.placeholder = 'Type your message...';
+      }
+
+      initBot();
+
+      // (optional) show a friendly badge that numbers are stored – but we already have chat confirmation
+    })();
+  </script>
+  <!-- small note: the fan group link is a demo placeholder, update as needed -->
+</body>
+</html>
