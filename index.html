@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>014boy · content creator · Embu comedian</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 30% 20%, #1d3647, #0b1a2c);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .chat-container {
+      max-width: 520px;
+      width: 100%;
+      height: 780px;
+      background: rgba(235, 225, 212, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 42px 42px 36px 36px;
+      box-shadow: 0 30px 50px rgba(0, 10, 20, 0.8), 0 0 0 1px rgba(255, 245, 225, 0.25) inset;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255, 240, 210, 0.4);
+    }
+
+    /* header */
+    .chat-header {
+      background: rgba(12, 40, 55, 0.9);
+      backdrop-filter: blur(8px);
+      padding: 16px 20px;
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 250, 210, 0.3);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+      flex-wrap: wrap;
+    }
+    .chat-header i {
+      font-size: 2rem;
+      color: #b3f05e;
+      filter: drop-shadow(0 2px 4px #1f4b3a);
+    }
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+    .header-text .name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .header-text .bio {
+      font-size: 0.7rem;
+      font-weight: 400;
+      opacity: 0.9;
+      background: rgba(255,255,240,0.15);
+      padding: 4px 8px;
+      border-radius: 40px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .chat-header .artist-badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      margin-left: auto;
+      font-weight: 500;
+      border: 1px solid rgba(255, 240, 180, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* messages area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 18px 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+      background-image: radial-gradient(rgba(180, 150, 120, 0.1) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .message {
+      display: flex;
+      max-width: 88%;
+      gap: 10px;
+      align-items: flex-end;
+      animation: popIn 0.25s ease;
+    }
+    .message.bot { align-self: flex-start; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: #2e5b71; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 1.2rem; flex-shrink: 0; border: 2px solid rgba(255,255,240,0.6);
+    }
+    .user .avatar { background: #3a6d52; }
+
+    .bubble {
+      padding: 14px 18px; border-radius: 26px; line-height: 1.5; font-size: 0.98rem;
+      word-break: break-word; box-shadow: 0 6px 12px rgba(0,20,20,0.2);
+      backdrop-filter: blur(4px); border: 1px solid rgba(255,255,245,0.3);
+    }
+    .bot .bubble {
+      background: rgba(255,255,255,0.9); border-bottom-left-radius: 6px;
+      color: #0a1e2b; border-left: 3px solid #ade25d;
+    }
+    .user .bubble {
+      background: rgba(208,240,170,0.9); border-bottom-right-radius: 6px;
+      color: #07212e; border-right: 3px solid #1f8fad;
+    }
+
+    .bubble a {
+      color: #1c6c9c; text-decoration: none; font-weight: 600;
+      border-bottom: 1px dotted #3a8bb9;
+    }
+    .bubble a:hover { border-bottom: 2px solid; }
+
+    /* quick replies */
+    .quick-replies {
+      display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 18px 12px 18px;
+      background: rgba(235, 220, 200, 0.7); backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255,245,215,0.7); justify-content: center;
+    }
+    .quick-reply-btn {
+      background: rgba(30, 70, 90, 0.9); backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.4); color: white; padding: 12px 16px;
+      border-radius: 60px; font-size: 0.9rem; font-weight: 600; display: inline-flex;
+      align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 10px 18px rgba(0,30,40,0.3);
+      transition: 0.2s; flex: 1 0 auto; justify-content: center;
+    }
+    .quick-reply-btn i { font-size: 1.1rem; }
+    .quick-reply-btn:hover { background: #1f5f7a; transform: translateY(-2px); }
+
+    /* input */
+    .input-area {
+      background: rgba(225, 210, 190, 0.8); backdrop-filter: blur(20px);
+      padding: 18px 20px 20px 20px; display: flex; gap: 12px; align-items: center;
+      border-top: 1px solid rgba(255,250,200,0.7);
+    }
+    .input-area input {
+      flex: 1; background: rgba(255,255,250,0.9); border: none; padding: 16px 22px;
+      border-radius: 60px; font-size: 1rem; outline: none; box-shadow: 0 6px 12px rgba(70,50,30,0.2);
+      transition: 0.2s; border: 1px solid #f0e1cf;
+    }
+    .input-area input:focus { box-shadow: 0 0 0 4px rgba(150,215,245,0.5); background: #ffffff; }
+    .input-area button {
+      background: linear-gradient(145deg, #22738f, #14536b); border: none; color: white;
+      width: 62px; height: 62px; border-radius: 50%; font-size: 1.6rem; cursor: pointer;
+      transition: 0.2s; box-shadow: 0 8px 16px #093a4b; border: 1px solid #7fc8ed;
+    }
+    .input-area button:hover { background: #1b8bb0; transform: rotate(8deg) scale(1.05); }
+
+    @keyframes popIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <i class="fab fa-whatsapp"></i> 
+      <div class="header-text">
+        <span class="name">014boy</span>
+        <span class="bio"><i class="fas fa-pen-fancy"></i> content creater · writer · Embu comedian</span>
+      </div>
+      <div class="artist-badge"><i class="fas fa-circle" style="color:#8eff8e;"></i> online</div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <!-- quick replies with updated fan group link (used in bot reply) -->
+    <div class="quick-replies" id="quickReplies">
+      <button class="quick-reply-btn" data-option="watch"><i class="fas fa-play"></i> Latest video</button>
+      <button class="quick-reply-btn" data-option="book"><i class="fas fa-bullhorn"></i> Book ad</button>
+      <button class="quick-reply-btn" data-option="join"><i class="fas fa-users"></i> Fan group</button>
+      <button class="quick-reply-btn" data-option="channel"><i class="fab fa-whatsapp"></i> Fun page</button>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="messageInput" placeholder="Type message or phone..." autocomplete="off">
+      <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- CONFIG ----------
+      const OWNER_PHONE = '254742544885';   // 0742544885 → 254742544885
+      const FAN_GROUP_LINK = 'https://chat.whatsapp.com/Ehg7Vh95Jyb3zlipRIZkYR';
+
+      // ---------- DATA ----------
+      const messages = [];
+      const subscribedNumbers = [];
+
+      let expectingPhone = false;
+      let pendingContext = null;
+
+      // DOM elements
+      const chatMessagesDiv = document.getElementById('chatMessages');
+      const messageInput = document.getElementById('messageInput');
+      const sendButton = document.getElementById('sendButton');
+      const quickReplyBtns = document.querySelectorAll('.quick-reply-btn');
+
+      // ---------- HELPERS ----------
+      function formatMessage(text) {
+        let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        escaped = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+        escaped = escaped.replace(/\n/g, '<br>');
+        return escaped;
+      }
+
+      // render all messages
+      function renderMessages() {
+        chatMessagesDiv.innerHTML = '';
+        messages.forEach(msg => {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${msg.sender}`;
+
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'avatar';
+          avatarDiv.innerHTML = msg.sender === 'bot' ? '<i class="fas fa-paint-brush"></i>' : '<i class="fas fa-user-circle"></i>';
+
+          const bubbleDiv = document.createElement('div');
+          bubbleDiv.className = 'bubble';
+          bubbleDiv.innerHTML = formatMessage(msg.text);
+
+          if (msg.sender === 'bot') {
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(bubbleDiv);
+          } else {
+            messageDiv.appendChild(bubbleDiv);
+            messageDiv.appendChild(avatarDiv);
+          }
+
+          chatMessagesDiv.appendChild(messageDiv);
+        });
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+      }
+
+      function addMessage(sender, text) {
+        messages.push({ sender, text });
+        renderMessages();
+      }
+
+      // ---------- AUTO‑FORWARD to owner's WhatsApp (no user‑facing mention) ----------
+      function forwardToOwner(userMessage) {
+        // silently log – the user never sees this
+        console.log(`🔔 FORWARD to ${OWNER_PHONE}: ${userMessage}`);
+        // In a real implementation you would connect to a backend.
+        // The user receives only the public bot replies below.
+      }
+
+      // ---------- BOT REPLY with updated fan group link and 014boy persona ----------
+      function botReplyForOption(option) {
+        let replyText = '';
+
+        switch (option) {
+          case 'watch':
+            replyText = '🎥 **Latest from 014boy** (Embu comedian)\n📌 Facebook: https://www.facebook.com/Pius014\n📌 TikTok: https://tiktok.com/@014.boyz\n\n📲 Drop your phone number for exclusive content alerts ✨';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'watch';
+            break;
+
+          case 'book':
+            replyText = '📢 **Book an ad spot** with 014boy!\n\nContent creator & writer with thousands of views. Enter your phone number — our team will text you prices & details immediately. 📞💫';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'book';
+            break;
+
+          case 'join':
+            replyText = `👥 **Official 014boy fan group** \n👉 WhatsApp group: ${FAN_GROUP_LINK}\n\nAlso drop your number to join our broadcast list (exclusive updates & giveaways!) 🎁📱`;
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'join';
+            break;
+
+          case 'channel':
+            replyText = '📱 **WhatsApp fun page (channel)**\nStay entertained with daily sketches, polls & behind the scenes:\n🔗 https://whatsapp.com/channel/0029VbAhdwB3LdQbxB66Vr19\n\n❤️ If you want channel updates via SMS, share your phone number (optional).';
+            addMessage('bot', replyText);
+            expectingPhone = true;
+            pendingContext = 'channel';
+            break;
+
+          default:
+            replyText = '🤖 Use the buttons below — I’ll help you out 😊';
+            addMessage('bot', replyText);
+        }
+
+        messageInput.placeholder = expectingPhone ? '📱 Your phone number...' : 'Type a message...';
+      }
+
+      // ---------- HANDLE OPTION ----------
+      function handleOption(option) {
+        if (expectingPhone) {
+          expectingPhone = false;
+          pendingContext = null;
+        }
+
+        let userDisplay = '';
+        if (option === 'watch') userDisplay = '🎥 Watch latest video';
+        else if (option === 'book') userDisplay = '📢 Book advertisement';
+        else if (option === 'join') userDisplay = '👥 Join fan group';
+        else if (option === 'channel') userDisplay = '📱 WhatsApp fun page';
+
+        addMessage('user', userDisplay);
+        botReplyForOption(option);
+      }
+
+      // ---------- PROCESS USER INPUT (phone or message) with silent auto‑forward (no disclosure) ----------
+      function processUserInput(rawInput) {
+        if (!rawInput.trim()) return;
+
+        // Add user message to chat
+        addMessage('user', rawInput);
+        subscribedNumbers.push(rawInput);   // store locally (demo)
+
+        // Silently forward – user never sees this
+        forwardToOwner(rawInput);
+
+        // AI auto‑response based on context – no mention of "silent" or "without opening"
+        if (expectingPhone && pendingContext) {
+          // Contextual thank you
+          let thankYou = '';
+          switch (pendingContext) {
+            case 'watch':
+              thankYou = '✅ Thanks for the number, fam! 🙌 You’ll now receive updates on new videos. **014boy** has your info.';
+              break;
+            case 'book':
+              thankYou = '📞 Perfect! Our advertising manager will reach out shortly. (Your number was sent to 014boy directly.)';
+              break;
+            case 'join':
+              thankYou = '🚀 You’re in! Check the group invite above. Your number reached the comedian.';
+              break;
+            case 'channel':
+              thankYou = '✅ Thanks! You’ll get fun page updates. Your number is now with 014boy.';
+              break;
+            default:
+              thankYou = '📲 Thanks for sharing! 014boy (Embu comedian) has been notified.';
+          }
+          addMessage('bot', thankYou);
+          expectingPhone = false;
+          pendingContext = null;
+        } else {
+          // Normal message – confirm receipt without mentioning how
+          addMessage('bot', `🤖 Thanks for reaching out. **014boy** has received your message and will get back to you soon! ✨`);
+        }
+
+        messageInput.value = '';
+        messageInput.placeholder = expectingPhone ? '📱 Your phone number...' : 'Type a message...';
+      }
+
+      // ---------- HANDLE SEND BUTTON / ENTER ----------
+      function handleUserTextInput() {
+        const rawText = messageInput.value.trim();
+        if (rawText === '') return;
+        processUserInput(rawText);
+      }
+
+      // ---------- EVENT LISTENERS ----------
+      quickReplyBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          handleOption(e.currentTarget.dataset.option);
+        });
+      });
+
+      sendButton.addEventListener('click', () => {
+        handleUserTextInput();
+      });
+
+      messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleUserTextInput();
+        }
+      });
+
+      // ---------- INIT ----------
+      function initBot() {
+        // Removed any mention of "silent" or "without opening"
+        const welcome = '👋 Welcome to **014boy**! ✨\nI\'m a content creator, writer & Embu comedian. Your one-stop hub. Choose an option below.';
+        addMessage('bot', welcome);
+        expectingPhone = false;
+        pendingContext = null;
+      }
+
+      initBot();
+    })();
+  </script>
+</body>
+</html>
